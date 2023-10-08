@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech Transcription</title>
+</head>
+<body>
+    <h1>Transcribe Speech With Flask 2.3</h1>
+    <p id="status">Connection status will go here</p>
+    <p id="transcript"></p>
+<script>
+  navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+    const mediaRecorder = new MediaRecorder(stream)
+  })
+</script>
+<script>... const socket = new WebSocket('ws://localhost:5555/listen')</script>
+    <script>
+  socket.on_open = () => {
+    document.querySelector('#status').textContent = 'Connected'
+    console.log({
+        event: 'on_open'
+    })
+    mediaRecorder.addEventListener('data_available', async (event) => {
+        if (event.data.size > 0 && socket.readyState == 1) {
+            socket.send(event.data)
+        }
+    })
+    mediaRecorder.start(250)
+}
+
+  socket.on_message = (message) => {
+      const received = message. data
+      if (received) {
+          console.log(received)
+          document.querySelector('#transcript').textContent += ' ' + received
+      }
+  }
+
+  socket.on_close = () => {
+      console.log({
+          event: 'on_close'
+      })
+  }
+
+  socket.onerror = (error) => {
+      console.log({
+          event: 'onerror',
+          error
+      })
+  }
+</script>
+
+</body>
+</html>
